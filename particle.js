@@ -43,10 +43,10 @@
 
     lineWidth = 7,
 
+    isMouseDown = false,
 
     propData = [],
-    easing = 50,
-    i = 0;
+    easing = 50;
 
   function int(str) {
     return Math.floor( parseInt(str, 10) );
@@ -55,6 +55,8 @@
   function update(){
 
     var
+    i = 0,
+    len = partNum,
     random = Math.random,
     abs = Math.abs,
     cos = Math.cos,
@@ -64,7 +66,7 @@
 
 
     // rect.position.x += 1;
-    for( i = 0; i < partNum; i ++ ){
+    for( ; i < len; i ++ ){
 
       var
       radian = propData[i].rotate * PI / 180,
@@ -103,15 +105,15 @@
         propData[i].dx = propData[i].toX;
       }
 
-      if( abs(propData[i].toY - propData[i].dy < 0.01) ){
+      if( abs(propData[i].toY - propData[i].dy) < 0.01 ){
         propData[i].dy = propData[i].toY;
       }
 
-      if( abs(propData[i].toColor - propData[i].color < 0.01) ) {
+      if( abs(propData[i].toColor - propData[i].color) < 0.01 ) {
         propData[i].color = propData[i].toColor;
       }
 
-      if( abs(propData[i].toS - propData[i].scale < 0.01) ) {
+      if( abs(propData[i].toS - propData[i].scale) < 0.01 ) {
         propData[i].scale = propData[i].toS;
       }
 
@@ -139,14 +141,118 @@
   };
 
 
-  function onMouseOver(event) {
-    var random = Math.random;
-    for( i = 0; i < partNum; i ++ ){
+  function onMouseWheel(event) {
+    var
+      i = 0,
+      len = partNum,
+      random = Math.random,
+      mouseX = event.pageX,
+      mouseY = event.pageY,
+      direct = event.wheelDelta > 0? 1 : -1,
+      dist = 0,
+      vol = 10,
+      difX = 0,
+      difY = 0;
 
-      propData[i].dx = propData[i].dx + (event.wheelDelta > 0? 1 : -1) * ( random() * 50 );
-      propData[i].dy = propData[i].dy + (event.wheelDelta > 0? -1 : 1) * ( random() * 50 );
+    for( ; i < len; i ++ ){
 
-      propData[i].dr = propData[i].dr + random() * 360;
+      dist = getDist( propData[i].x, propData[i].y, mouseX, mouseY );
+      difX = (propData[i].x - mouseX);
+      difY = (propData[i].y - mouseY);
+
+      propData[i].dx = propData[i].dx + direct * vol * ( difX / dist);
+      propData[i].dy = propData[i].dy + direct * vol * ( difY / dist);
+      propData[i].dr = propData[i].dr + random() * 100;
+    }
+  };
+
+  function onMouseMove(event){
+    if( !isMouseDown ) {
+      return false;
+    }
+    var
+      i = 0,
+      len = partNum,
+      random = Math.random,
+      mouseX = event.pageX,
+      mouseY = event.pageY,
+      direct = -1,
+      dist = 0,
+      vol = 1,
+      difX = 0,
+      difY = 0;
+
+    for( ; i < partNum; i ++ ){
+
+      dist = getDist( propData[i].x, propData[i].y, mouseX, mouseY );
+      difX = (propData[i].x - mouseX);
+      difY = (propData[i].y - mouseY);
+
+      propData[i].dx = propData[i].dx + direct * vol * Math.random() * ( difX / dist);
+      propData[i].dy = propData[i].dy + direct * vol * Math.random() * ( difY / dist);
+
+      propData[i].dr = propData[i].dr + random() * 100;
+    }
+  };
+
+  function onMouseDown(event) {
+    isMouseDown = true;
+  };
+
+  function onMouseUp(event){
+    var
+      i = 0,
+      len = partNum,
+      random = Math.random,
+      mouseX = event.pageX,
+      mouseY = event.pageY,
+      direct = 1,
+      dist = 0,
+      vol = 30,
+      difX = 0,
+      difY = 0;
+    isMouseDown = false;
+
+    console.log("UP")
+
+    for( ; i < len; i ++ ){
+
+      dist = getDist( propData[i].x, propData[i].y, mouseX, mouseY );
+      difX = (propData[i].x - mouseX);
+      difY = (propData[i].y - mouseY);
+
+      propData[i].dx = propData[i].dx + vol / direct * ( difX / dist);
+      propData[i].dy = propData[i].dy + vol / direct * ( difY / dist);
+      propData[i].dr = propData[i].dr + random() * 100;
+    }
+
+  }
+
+  function onMouseClick(event) {
+    var
+      i = 0,
+      len = partNum,
+      random = Math.random,
+      mouseX = event.pageX,
+      mouseY = event.pageY,
+      direct = -1,
+      dist = 0,
+      vol = 10,
+      difX = 0,
+      difY = 0;
+    console.log("CLICK")
+
+
+    for( ; i < partNum; i ++ ){
+
+      dist = getDist( propData[i].x, propData[i].y, mouseX, mouseY );
+      difX = (propData[i].x - mouseX);
+      difY = (propData[i].y - mouseY);
+
+      propData[i].dx = propData[i].dx + direct * vol * ( difX / dist);
+      propData[i].dy = propData[i].dy + direct * vol * ( difY / dist);
+
+      propData[i].dr = propData[i].dr + random() * 100;
     }
   };
 
@@ -156,7 +262,10 @@
 
   function init(event){
 
-    var random = Math.random;
+    var
+      i = 0,
+      len = partNum,
+      random = Math.random;
 
     canvasWidth = win.innerWidth;
     canvasHeight = win.innerHeight;
@@ -170,7 +279,7 @@
 
     doc.body.appendChild(renderer.view);
 
-    for( i = 0; i < partNum; i ++ ){
+    for( ; i < len; i ++ ){
 
       propData[i] = {
         x: random() * canvasWidth,
@@ -208,12 +317,15 @@
     
 
   doc.addEventListener('DOMContentLoaded', init, false);
-  // doc.addEventListener('click', onMouseOver, false);
   win.addEventListener("resize", onResize, false);
+  win.addEventListener("mousemove", onMouseMove, false);
+  win.addEventListener("mousedown", onMouseDown, false);
+  win.addEventListener("mouseup", onMouseUp, false);
 
+  doc.addEventListener('click', onMouseClick, false);
   if (win.addEventListener) {
-    win.addEventListener('DOMMouseScroll', onMouseOver, false);
+    win.addEventListener('DOMMouseScroll', onMouseWheel, false);
   }
-  win.onmousewheel = document.onmousewheel = onMouseOver;
+  win.onmousewheel = document.onmousewheel = onMouseWheel;
 
 })(window);
