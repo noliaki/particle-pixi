@@ -1,3 +1,3 @@
 particle-pixi
 =============
-http://renoat.net/lab/particle-pixi/
+http://noliaki.github.io/particle-pixi/
